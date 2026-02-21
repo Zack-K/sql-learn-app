@@ -55,6 +55,16 @@
 
     <!-- SOL リファレンスパネル -->
     {% include 'sol_reference.html' %}
+
+    <script>
+        document.body.addEventListener('click', function (e) {
+            const link = e.target.closest('.day-link');
+            if (link) {
+                document.querySelectorAll('.day-link').forEach(el => el.classList.remove('active'));
+                link.classList.add('active');
+            }
+        });
+    </script>
 </body>
 
 </html>
