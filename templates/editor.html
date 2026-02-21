@@ -1,0 +1,75 @@
+<!-- editor.html: HTMXでメイン領域に差し込まれる部分テンプレート -->
+<div class="content-header">
+    {% if drill_data %}
+    <h2>Day {{ active_day }}: {{ drill_data.title }}</h2>
+    <p class="goal-text"><strong>🎯 目的:</strong> {{ drill_data.goal }}</p>
+    {% else %}
+    <h2>Day {{ active_day }}</h2>
+    <p>まだ問題データが登録されていません。</p>
+    {% endif %}
+</div>
+
+{% if drill_data %}
+<div class="drill-section">
+    <!-- 問題文と前提スキーマ -->
+    <div class="question-pane">
+        <h3>📄 課題</h3>
+        <div class="question-text">
+            {{ drill_data.question | safe }}
+        </div>
+
+        {% if drill_data.schema %}
+        <div class="schema-box">
+            <h4>前提テーブル構成</h4>
+            <ul>
+                {% for table in drill_data.schema %}
+                <li><code>{{ table.table_name.split(' ')[0].replace('.', '_') }}</code> ({{ table.columns | join(', ')
+                    }})</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- SQL Playground (データ探索) 領域 -->
+    <div class="playground-pane">
+        <h3>🔍 SQL Playground (データ探索)</h3>
+        <p style="font-size: 0.9em; color: var(--text-dim); margin-top: 0;">
+            前提テーブルに対して実際のSQL（SELECT文）を実行し、中身を確認できます。（※インメモリDBの使い捨て実行です）
+        </p>
+        <form hx-post="/run_sql/{{ active_day }}" hx-target="#sql-result" hx-indicator="#sql-spinner">
+            <textarea name="sql_query" class="code-editor sql-query-input"
+                placeholder="SELECT * FROM table_name LIMIT 10;" rows="3"></textarea>
+            <div style="margin-top: 10px;">
+                <button type="submit" class="btn btn-execute">SQL実行 ▶</button>
+                <span id="sql-spinner" class="htmx-indicator" style="margin-left: 10px;">実行中...</span>
+            </div>
+        </form>
+        <!-- SQL実行結果の表示領域 -->
+        <div id="sql-result"></div>
+    </div>
+
+    <!-- ユーザー解答・エディタ領域 -->
+    <div class="editor-pane">
+        <h3>💻 SOL エディタ</h3>
+        <form hx-post="/save/{{ active_day }}" hx-target="#save-message" hx-swap="innerHTML">
+            <textarea name="answer_text" class="code-editor" placeholder="ここにSOL（疑似コード）を記述してください..."
+                rows="15">{{ current_answer.answer_text if current_answer else '' }}</textarea>
+
+            <div class="action-bar">
+                <button type="submit" class="btn btn-save">保存する</button>
+                <div id="save-message" class="toast-message"></div>
+
+                <!-- HTMXを利用して解説トグル -->
+                <button type="button" class="btn btn-answer" hx-get="/answer/{{ active_day }}" hx-target="#answer-area"
+                    hx-swap="innerHTML">
+                    解答例を見る
+                </button>
+            </div>
+        </form>
+
+        <!-- 解答表示エリア（初期状態は空、HTMXで差し込まれる） -->
+        <div id="answer-area" class="answer-area"></div>
+    </div>
+</div>
+{% endif %}

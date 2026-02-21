@@ -1,0 +1,660 @@
+[
+  {
+    "day": 1,
+    "title": "SOLで「手続き」を書く",
+    "goal": "自然言語で書かれた手順をSOL風の手続きに落とす。",
+    "question": "次の手順をSOLで手続きとして記述してください。<br>1. CSVファイルを読み込む<br>2. ヘッダー行をスキップする<br>3. 各行を1件ずつ処理に渡す",
+    "schema": [
+      {
+        "table_name": "users.csv",
+        "columns": [
+          "id",
+          "name",
+          "email"
+        ],
+        "mock_data": [
+          {
+            "id": 1,
+            "name": "Alice",
+            "email": "alice@example.com"
+          },
+          {
+            "id": 2,
+            "name": "Bob",
+            "email": "bob@example.com"
+          }
+        ]
+      }
+    ],
+    "example_answer": "function process_csv(filepath) {\n    file = open(filepath)\n    file.skip_header()\n    for row in file:\n        process_row(row)\n}",
+    "explanation": "ETLの入り口となる「抽出（Extract）」の基本的な考え方です。ファイルを行ごとにループ処理することはデータ処理の基本のキです。"
+  },
+  {
+    "day": 2,
+    "title": "条件分岐（if）の練習",
+    "goal": "ETLでよくある条件分岐をSOLで表現する。",
+    "question": "取引レコードの処理において、以下の条件を追加してください。<br>1. amount（金額）が0以下のレコードは除外する<br>2. transaction_date（取引日）が未来日ならエラーログを出力する",
+    "schema": [
+      {
+        "table_name": "transactions",
+        "columns": [
+          "transaction_id",
+          "user_id",
+          "amount",
+          "transaction_date"
+        ],
+        "mock_data": [
+          {
+            "transaction_id": 101,
+            "user_id": 1,
+            "amount": 1500,
+            "transaction_date": "2023-10-01"
+          },
+          {
+            "transaction_id": 102,
+            "user_id": 2,
+            "amount": -500,
+            "transaction_date": "2023-10-02"
+          },
+          {
+            "transaction_id": 103,
+            "user_id": 1,
+            "amount": 2000,
+            "transaction_date": "2099-12-31"
+          }
+        ]
+      }
+    ],
+    "example_answer": "function process_transactions(records) {\n    for record in records:\n        if record.amount <= 0:\n            continue // 除外\n        if record.transaction_date > today():\n            log_error('未来日エラー: ' + record.id)\n            continue\n        save(record)\n}",
+    "explanation": "条件分岐は「データのクレンジング」そのものです。不要なデータを弾き、異常値に対してアクション（ログ出力）を取る処理は実務で頻出します。"
+  },
+  {
+    "day": 3,
+    "title": "繰り返し処理（loop）の練習",
+    "goal": "レコード配列をループしながら加工する。",
+    "question": "売上レコードの配列をループし、amountの合計を求めるSOLを書いてください。さらに「currencyが'JPY'のものだけ合計する」条件も追加してください。",
+    "schema": [
+      {
+        "table_name": "sales",
+        "columns": [
+          "sale_id",
+          "store_id",
+          "amount",
+          "currency",
+          "created_at"
+        ],
+        "mock_data": [
+          {
+            "sale_id": 1,
+            "store_id": 10,
+            "amount": 5000,
+            "currency": "JPY",
+            "created_at": "2023-10-01"
+          },
+          {
+            "sale_id": 2,
+            "store_id": 10,
+            "amount": 100,
+            "currency": "USD",
+            "created_at": "2023-10-01"
+          },
+          {
+            "sale_id": 3,
+            "store_id": 11,
+            "amount": 3000,
+            "currency": "JPY",
+            "created_at": "2023-10-02"
+          }
+        ]
+      }
+    ],
+    "example_answer": "function calculate_jpy_total(sales_records) {\n    total = 0\n    for record in sales_records:\n        if record.currency == 'JPY':\n            total = total + record.amount\n    return total\n}",
+    "explanation": "配列のループと累積用の変数（totalなど）の組み合わせは、SQLのSUM関数の裏側の動きです。"
+  },
+  {
+    "day": 4,
+    "title": "フィルタリングとマッピング",
+    "goal": "「WHERE」と「SELECT」のイメージをSOLで書く。",
+    "question": "レコード配列から、「status = 'completed'」のレコードだけを取り出してください。<br>その結果から新しい配列を作り、order_idとamountだけを持つレコード（オブジェクト）に変換してください。",
+    "schema": [
+      {
+        "table_name": "orders",
+        "columns": [
+          "order_id",
+          "customer_id",
+          "status",
+          "amount",
+          "ordered_at"
+        ],
+        "mock_data": [
+          {
+            "order_id": 1,
+            "customer_id": 1,
+            "status": "completed",
+            "amount": 1000,
+            "ordered_at": "2023-10-01"
+          },
+          {
+            "order_id": 2,
+            "customer_id": 2,
+            "status": "pending",
+            "amount": 500,
+            "ordered_at": "2023-10-02"
+          },
+          {
+            "order_id": 3,
+            "customer_id": 1,
+            "status": "completed",
+            "amount": 2000,
+            "ordered_at": "2023-10-03"
+          }
+        ]
+      }
+    ],
+    "example_answer": "function filter_and_map_orders(orders) {\n    result = []\n    for order in orders:\n        if order.status == 'completed':\n            new_record = {\n                'order_id': order.order_id,\n                'amount': order.amount\n            }\n            result.push(new_record)\n    return result\n}",
+    "explanation": "WHEREで絞り込み、SELECTで必要なカラムだけを抽出する処理は、配列では「Filter」と「Map」の概念に相当します。"
+  },
+  {
+    "day": 5,
+    "title": "グルーピング（単純版）",
+    "goal": "GROUP BYの前段階として、グループ分けのループを考える。",
+    "question": "customer_idごとにamountを合計するアルゴリズムをSOLで書いてください。結果を (customer_id, total_amount) の配列として出力する手続きにまとめてください。",
+    "schema": [
+      {
+        "table_name": "purchases",
+        "columns": [
+          "purchase_id",
+          "customer_id",
+          "amount",
+          "item_name"
+        ],
+        "mock_data": [
+          {
+            "purchase_id": 1,
+            "customer_id": 1,
+            "amount": 1200,
+            "item_name": "Book"
+          },
+          {
+            "purchase_id": 2,
+            "customer_id": 2,
+            "amount": 800,
+            "item_name": "Pen"
+          },
+          {
+            "purchase_id": 3,
+            "customer_id": 1,
+            "amount": 300,
+            "item_name": "Notebook"
+          }
+        ]
+      }
+    ],
+    "example_answer": "function group_by_customer(purchases) {\n    group_map = {}\n    for p in purchases:\n        if not group_map.has(p.customer_id):\n            group_map[p.customer_id] = 0\n        group_map[p.customer_id] += p.amount\n\n    result = []\n    for customer_id, total in group_map:\n        result.push({'customer_id': customer_id, 'total_amount': total})\n    return result\n}",
+    "explanation": "SQLのGROUP BYの実態の一つである「Hash Aggregation」に相当する処理です。キーごとに集計用の枠（ハッシュマップ）を作ることで実現します。"
+  },
+  {
+    "day": 6,
+    "title": "ジョインの思考",
+    "goal": "JOINをループと条件で分解して記述する。",
+    "question": "注文レコードと顧客マスタを「customer_id」で内部結合するアルゴリズムを書いてください。さらに「顧客マスタに存在しない注文」はエラーログに出す（参照整合性エラーの検知）処理も含めてください。",
+    "schema": [
+      {
+        "table_name": "orders",
+        "columns": [
+          "order_id",
+          "customer_id",
+          "amount"
+        ],
+        "mock_data": [
+          {
+            "order_id": 1,
+            "customer_id": 1,
+            "status": "completed",
+            "amount": 1000,
+            "ordered_at": "2023-10-01"
+          },
+          {
+            "order_id": 2,
+            "customer_id": 2,
+            "status": "pending",
+            "amount": 500,
+            "ordered_at": "2023-10-02"
+          },
+          {
+            "order_id": 3,
+            "customer_id": 1,
+            "status": "completed",
+            "amount": 2000,
+            "ordered_at": "2023-10-03"
+          }
+        ]
+      },
+      {
+        "table_name": "customers",
+        "columns": [
+          "customer_id",
+          "name",
+          "email"
+        ],
+        "mock_data": [
+          {
+            "customer_id": 1,
+            "name": "Alice",
+            "email": "alice@example.com"
+          },
+          {
+            "customer_id": 2,
+            "name": "Bob",
+            "email": "bob@example.com"
+          }
+        ]
+      }
+    ],
+    "example_answer": "function join_orders_customers(orders, customers) {\n    // 顧客マスタを検索しやすいようにMap化（Hash Joinの準備）\n    customer_map = {}\n    for c in customers:\n        customer_map[c.customer_id] = c\n\n    result = []\n    for o in orders:\n        if customer_map.has(o.customer_id):\n            c = customer_map[o.customer_id]\n            result.push({'order_id': o.order_id, 'name': c.name, 'amount': o.amount})\n        else:\n            log_error('顧客不明: ' + o.order_id)\n    return result\n}",
+    "explanation": "データベースが実際に背後で行っている「Hash Join」の動きに似ています。また、マスタにないIDを検知する思考はパイプラインの品質保証上とても重要です。"
+  },
+  {
+    "day": 7,
+    "title": "実務ETLタスク1本を書いてみる",
+    "goal": "ここまでの要素をつなげて1本のETLパイプラインをSOLで書く。",
+    "question": "以下の処理全体を1つの手続きとして記述してください。<br>1. orders.csv と customers.csv を読み込む<br>2. ordersのうち'completed'のみフィルタ<br>3. 顧客マスタと結合<br>4. 顧客ごとの売上合計を算出<br>5. 結果を customer_sales.csv として書き出す",
+    "schema": [
+      {
+        "table_name": "orders.csv",
+        "columns": [
+          "order_id",
+          "customer_id",
+          "status",
+          "amount"
+        ],
+        "mock_data": [
+          {
+            "order_id": 1,
+            "customer_id": 1,
+            "status": "completed",
+            "amount": 1000
+          },
+          {
+            "order_id": 2,
+            "customer_id": 2,
+            "status": "pending",
+            "amount": 500
+          },
+          {
+            "order_id": 3,
+            "customer_id": 99,
+            "status": "completed",
+            "amount": 2000
+          }
+        ]
+      },
+      {
+        "table_name": "customers.csv",
+        "columns": [
+          "customer_id",
+          "name"
+        ],
+        "mock_data": [
+          {
+            "customer_id": 1,
+            "name": "Alice"
+          },
+          {
+            "customer_id": 2,
+            "name": "Bob"
+          }
+        ]
+      },
+      {
+        "table_name": "[出力] customer_sales.csv",
+        "columns": [
+          "customer_id",
+          "name",
+          "total_amount"
+        ]
+      }
+    ],
+    "example_answer": "function run_daily_etl() {\n    orders = read_csv('orders.csv')\n    customers = read_csv('customers.csv')\n\n    valid_orders = filter(orders, o => o.status == 'completed')\n    joined_data = join_orders_customers(valid_orders, customers)\n    aggr_data = group_by_customer(joined_data)\n\n    write_csv('customer_sales.csv', aggr_data)\n}",
+    "explanation": "これが「ETLスクリプト」の原型です。しかし、実際の業務ではこの関数が大きくなりすぎると保守ができなくなるため、ここから分割やツール（dbtなど）への移行が必要になります。"
+  },
+  {
+    "day": 8,
+    "title": "パイプラインのステップ分割",
+    "goal": "Day7の処理を「タスク/ステップ」単位に分割して定義する。",
+    "question": "Day7で書いた処理を「3〜5個の独立したステップ（関数）」に分解し、メインの手続きではそれらを順番に呼び出すだけの構造に書き換えてください。",
+    "schema": [
+      {
+        "table_name": "orders.csv",
+        "columns": [
+          "order_id",
+          "customer_id",
+          "status",
+          "amount"
+        ],
+        "mock_data": [
+          {
+            "order_id": 1,
+            "customer_id": 1,
+            "status": "completed",
+            "amount": 1000
+          },
+          {
+            "order_id": 2,
+            "customer_id": 2,
+            "status": "pending",
+            "amount": 500
+          },
+          {
+            "order_id": 3,
+            "customer_id": 99,
+            "status": "completed",
+            "amount": 2000
+          }
+        ]
+      },
+      {
+        "table_name": "customers.csv",
+        "columns": [
+          "customer_id",
+          "name"
+        ],
+        "mock_data": [
+          {
+            "customer_id": 1,
+            "name": "Alice"
+          },
+          {
+            "customer_id": 2,
+            "name": "Bob"
+          }
+        ]
+      }
+    ],
+    "example_answer": "function extract_data() { return [read_csv('orders.csv'), read_csv('customers.csv')] }\nfunction transform_data(orders, customers) { /* フィルタ・結合・集計処理 */ return aggr_data }\nfunction load_data(data) { write_csv('customer_sales.csv', data) }\n\n// メインプロセス\nfunction main_pipeline() {\n    [orders, customers] = extract_data()\n    transformed = transform_data(orders, customers)\n    load_data(transformed)\n}",
+    "explanation": "役割ごとに処理を分割する（関心の分離）ことで、テストがしやすくなり、Airflowなどのオーケストレーションツールでタスクを管理しやすくなります。"
+  },
+  {
+    "day": 9,
+    "title": "依存関係の記述",
+    "goal": "「このステップはAとBが終わってから」という依存（DAG）を表現する。",
+    "question": "4つのタスク (`extract_orders`, `extract_customers`, `transform`, `load`) について、並列実行可能なものと、順序が必要なものをコメントで明示しつつ手続きとして表現してください。",
+    "schema": [
+      {
+        "table_name": "Task: extract_orders",
+        "columns": [
+          "(Output: Raw Orders Array)"
+        ]
+      },
+      {
+        "table_name": "Task: extract_customers",
+        "columns": [
+          "(Output: Raw Customers Array)"
+        ]
+      },
+      {
+        "table_name": "Task: transform",
+        "columns": [
+          "(Input: Orders, Customers) -> (Output: Transformed)"
+        ]
+      }
+    ],
+    "example_answer": "function run_dag() {\n    // 【並列実行可能】お互いに依存していないため同時に動かせる\n    future_orders = execute_async(extract_orders)\n    future_customers = execute_async(extract_customers)\n\n    // 【直列実行】上の2つの完了を待つ必要がある\n    wait_all([future_orders, future_customers])\n    orders_data = future_orders.result()\n    customers_data = future_customers.result()\n\n    // 【直列実行】transformの完了を待ってloadを実行\n    transformed_data = transform(orders_data, customers_data)\n    load(transformed_data)\n}",
+    "explanation": "これがAirflowやDagsterなどのオーケストレータにおけるDAG（有向非巡回グラフ）の考え方です。"
+  },
+  {
+    "day": 10,
+    "title": "エラー処理とリトライの思考",
+    "goal": "ETLの実務で重要な「失敗時の挙動」をSOLで書く。",
+    "question": "APIからの抽出タスク `extract_from_api` が失敗したら、最大3回までリトライするアルゴリズムを書いてください。3回失敗したらタスク全体を失敗扱いにし、次へ進まないようにしてください。",
+    "schema": [
+      {
+        "table_name": "API Endpoint",
+        "columns": [
+          "GET /api/v1/sales_data"
+        ],
+        "mock_data": [
+          {
+            "GET /api/v1/sales_data": "Returns daily sales JSON array"
+          }
+        ]
+      }
+    ],
+    "example_answer": "function robust_extract() {\n    max_retries = 3\n    for attempt in 1..max_retries:\n        try:\n            data = extract_from_api()\n            return data // 成功したらリトライ終了\n        catch (error):\n            log('アクセス失敗: 回数=' + attempt)\n            if attempt == max_retries:\n                throw new Error('API抽出に完全に失敗しました。パイプラインを停止します。')\n            sleep(1000) // 1秒待ってリトライ\n}",
+    "explanation": "ネットワークやAPIは「必ず一時的に失敗する」前提で組むのがデータエンジニアの鉄則です。"
+  },
+  {
+    "day": 11,
+    "title": "スケジューリングの擬似表現",
+    "goal": "「毎日0時に実行」「前日のデータだけ対象」などをアルゴリズム化する。",
+    "question": "「毎日01:00に、前日の売上データを処理する」ロジックをSOLで書いてください。ただし「休日は処理をスキップする」条件を追加してください。",
+    "schema": [
+      {
+        "table_name": "sales (Partitioned by Date)",
+        "columns": [
+          "sale_id",
+          "amount",
+          "sale_date (YYYY-MM-DD)"
+        ],
+        "mock_data": [
+          {
+            "sale_id": 1,
+            "amount": 1500,
+            "sale_date (YYYY-MM-DD)": "2023-10-01"
+          },
+          {
+            "sale_id": 2,
+            "amount": 2000,
+            "sale_date (YYYY-MM-DD)": "2023-10-02"
+          }
+        ]
+      },
+      {
+        "table_name": "holidays_master",
+        "columns": [
+          "holiday_date",
+          "description"
+        ],
+        "mock_data": [
+          {
+            "holiday_date": "2023-10-09",
+            "description": "Sports Day"
+          }
+        ]
+      }
+    ],
+    "example_answer": "function scheduled_job(execution_time) {\n    if time_of(execution_time) != '01:00':\n        return // 指定時間以外は何もしない\n\n    target_date = date_of(execution_time) - 1_day\n\n    if is_holiday(target_date):\n        log('休日のため処理をスキップ')\n        return\n\n    process_sales_for_date(target_date)\n}",
+    "explanation": "実行日時を変数で受け取れるように設計しておくことで、過去データの再実行（バックフィル）が容易になります。これは実運用の最重要ポイントです。"
+  },
+  {
+    "day": 12,
+    "title": "dbtっぽいモデル依存の表現",
+    "goal": "「モデルAが終わったらB」といったdbtの参照（ref）をSOLで表す。",
+    "question": "stg_orders, stg_customers, fct_orders, dim_customer の4つのモデルに対して、依存関係（fctは両方に依存、dimはcustomersに依存）に従って実行順序を決めるアルゴリズムを書いてください。",
+    "schema": [
+      {
+        "table_name": "ソース (Raw)",
+        "columns": [
+          "raw_orders",
+          "raw_customers"
+        ]
+      },
+      {
+        "table_name": "変換層 (Models)",
+        "columns": [
+          "stg_orders",
+          "stg_customers",
+          "fct_orders",
+          "dim_customer"
+        ]
+      }
+    ],
+    "example_answer": "function dbt_run_simulation() {\n    // Layer 1: ソースに依存（互いに独立）\n    run_model('stg_orders')\n    run_model('stg_customers')\n\n    // Layer 2: stagingの完了を待って実行（順不同）\n    wait_all_layer1()\n    run_model('fct_orders')      // uses stg_orders, stg_customers\n    run_model('dim_customer')    // uses stg_customers\n}",
+    "explanation": "dbtは `{{ ref('stg_orders') }}` と書くだけで、この実行順序（DAG）を自動で計算し、並列実行してくれます。"
+  },
+  {
+    "day": 13,
+    "title": "変更時の再実行戦略",
+    "goal": "「あるモデルだけ変更されたとき、どこまで再実行するか」を考える。",
+    "question": "Day12のDAGに対し、「stg_ordersだけソースコードが書き換わった場合に、再実行が必要なモデルを特定する」アルゴリズムをSOLで書いてください。",
+    "schema": [
+      {
+        "table_name": "DAG Dependencies",
+        "columns": [
+          "fct_orders -> [stg_orders, stg_customers]",
+          "dim_customer -> [stg_customers]"
+        ]
+      }
+    ],
+    "example_answer": "function find_downstream_models(changed_model, all_deps) {\n    to_run = [changed_model]\n    for model in all_deps:\n        // 変更されたモデルに依存しているモデルがあれば追加する\n        if changed_model in model.depends_on:\n            to_run.push(model.name)\n            // 再帰的にその下流も追加するロジックが必要\n    return to_run\n}\n// 結果: ['stg_orders', 'fct_orders']\n// dim_customerはstg_ordersに依存していないため再実行不要",
+    "explanation": "これはdbtの `dbt run --select stg_orders+` というコマンド（下流モデルも含める）の裏側で動いているロジックです。全量実行を避けてコストを抑える考え方です。"
+  },
+  {
+    "day": 14,
+    "title": "データテストの思考（dbtの核心）",
+    "goal": "変換処理の直後に、結果の品質を保証するロジックを挟む。",
+    "question": "生成した `fct_orders` のデータ配列に対し、「order_idが一意（重複なし）であること」「amountがNULLでないこと」をチェックし、違反があればパイプラインを止める処理を追記してください。",
+    "schema": [
+      {
+        "table_name": "fct_orders (検証対象)",
+        "columns": [
+          "order_id",
+          "customer_id",
+          "amount",
+          "status"
+        ],
+        "mock_data": [
+          {
+            "order_id": "O1",
+            "customer_id": 1,
+            "amount": 1000,
+            "status": "completed"
+          },
+          {
+            "order_id": "O1",
+            "customer_id": 1,
+            "amount": 500,
+            "status": "pending"
+          },
+          {
+            "order_id": "O2",
+            "customer_id": 2,
+            "amount": null,
+            "status": "completed"
+          }
+        ]
+      }
+    ],
+    "example_answer": "function test_fct_orders(fct_data) {\n    seen_ids = {}\n    for row in fct_data:\n        // 非NULLテスト\n        if row.amount is NULL:\n            throw Error('NULL Amount found!')\n        \n        // 一意性（Unique）テスト\n        if seen_ids.has(row.order_id):\n            throw Error('Duplicate order_id: ' + row.order_id)\n        seen_ids[row.order_id] = true\n\n    return 'テスト通過'\n}",
+    "explanation": "「ただ変換する」のではなく「変換結果をシステムにアサート（検証）させる」。これがモダンなデータモデリングにおける最大の防御壁です。"
+  },
+  {
+    "day": 15,
+    "title": "インクリメンタル（差分）更新と冪等性",
+    "goal": "効率的で、何度実行してもデータが重複しない更新処理を書く。",
+    "question": "昨日の既存データ（DWH）と今日の新データ（API）を比較し、「新規のIDは追加（INSERT）」「既存のIDは更新（UPDATE）」するアルゴリズム（UPSERT/MERGE処理）を書いてください。",
+    "schema": [
+      {
+        "table_name": "dest_table (既存データ)",
+        "columns": [
+          "id",
+          "val",
+          "updated_at"
+        ],
+        "mock_data": [
+          {
+            "id": 1,
+            "val": "A",
+            "updated_at": "2023-10-01 10:00:00"
+          },
+          {
+            "id": 2,
+            "val": "B",
+            "updated_at": "2023-10-01 11:00:00"
+          }
+        ]
+      },
+      {
+        "table_name": "new_data (今日の抽出データ)",
+        "columns": [
+          "id",
+          "val",
+          "updated_at"
+        ],
+        "mock_data": [
+          {
+            "id": 2,
+            "val": "B_updated",
+            "updated_at": "2023-10-02 10:00:00"
+          },
+          {
+            "id": 3,
+            "val": "C",
+            "updated_at": "2023-10-02 10:05:00"
+          }
+        ]
+      }
+    ],
+    "example_answer": "function incremental_merge(existing_table, new_data) {\n    existing_map = map_by_id(existing_table)\n    \n    for row in new_data:\n        if existing_map.has(row.id):\n            // 既存にあれば最新値で上書き（UPDATE）\n            update_record(existing_table, row)\n        else:\n            // なければ新規追加（INSERT）\n            insert_record(existing_table, row)\n}",
+    "explanation": "この「MERGE（UPSERT）」の仕組みがあることで、ETLが途中で失敗し再実行（リトライ）されてもデータが二重に登録されません。この性質を『冪等性（べきとうせい）』と呼びます。"
+  },
+  {
+    "day": 16,
+    "title": "半構造化データ（JSON・配列）の展開",
+    "goal": "階層を持つデータをループで掘り下げ、平坦な構造に変換（Flatten）する。",
+    "question": "`[{user: 'A', items: ['apple', 'banana']}, {user: 'B', items: ['orange']}]` のような入れ子のJSON入力から、`(user, item)` の平坦なテーブル用レコードを生成するSOLを書いてください。",
+    "schema": [
+      {
+        "table_name": "raw_json_events (入力)",
+        "columns": [
+          "user",
+          "items (Array)"
+        ],
+        "mock_data": [
+          {
+            "user": "A",
+            "items (Array)": "['apple', 'banana']"
+          },
+          {
+            "user": "B",
+            "items (Array)": "['orange']"
+          }
+        ]
+      },
+      {
+        "table_name": "flattened_events (出力)",
+        "columns": [
+          "user",
+          "item"
+        ]
+      }
+    ],
+    "example_answer": "function flatten_json_array(json_data) {\n    flat_records = []\n    for obj in json_data:\n        user_id = obj.user\n        // 内側の配列をもう一度ループする\n        for item_name in obj.items:\n            flat_records.push({'user': user_id, 'item': item_name})\n    return flat_records\n}",
+    "explanation": "SnowflakeなどのDWHでは、JSONの配列を`FLATTEN`という関数等で一気に展開（行の爆発）させます。その中身はこのような二重ループのアルゴリズムです。"
+  },
+  {
+    "day": 17,
+    "title": "総合プロジェクト：パイプライン設計",
+    "goal": "全16日間の知識を使って、一連のパイプラインのアーキテクチャを書く",
+    "question": "Webアプリのアクセスログ（JSON）を例に「抽出(分割) → 展開(Flatten) → 変換(JOIN/集約) → テスト → 差分ロード」の一連のパイプライン処理を呼び出すメイン関数を書き、それぞれがどのツール(Airflow/dbt/Snowflake等)に該当するかコード上にコメントで記述してください。",
+    "schema": [
+      {
+        "table_name": "Source",
+        "columns": [
+          "Web Server JSON Logs (storage)"
+        ]
+      },
+      {
+        "table_name": "Data Warehouse Tables",
+        "columns": [
+          "raw_logs",
+          "stg_logs",
+          "fct_visits",
+          "prod_fct_visits"
+        ]
+      }
+    ],
+    "example_answer": "function run_daily_log_pipeline() {\n    // [Airflow(Spark/Fivetran領域)] データの抽出と生のロード\n    raw_logs = extract_api_logs(target_date)\n    load_to_s3(raw_logs)\n\n    // [Snowflake + dbt領域] データモデル化\n    stg_logs = execute_flatten(raw_logs) // Arrayの展開\n    fct_visits = build_dbt_model('fct_visits', deps=[stg_logs]) // SQLで変換\n\n    // [dbt Test領域] 品質保証\n    test_uniqueness(fct_visits, 'session_id')\n\n    // [Snowflake領域] 冪等性を持ったインクリメンタルMerge\n    merge_into_table('prod_fct_visits', fct_visits)\n}",
+    "explanation": "最終日お疲れ様でした！実務でのデータシステム構築は、まさにこの手続き群をモダンな特化ツールたちに分担させていく作業そのものです。"
+  }
+]

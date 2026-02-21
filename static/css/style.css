@@ -1,0 +1,270 @@
+:root {
+  --bg-color: #1e1e1e;
+  --panel-bg: #252526;
+  --text-main: #d4d4d4;
+  --text-dim: #9cdcfe;
+  --accent: #007acc;
+  --accent-hover: #0098ff;
+  --border: #3c3c3c;
+  --success: #6A9955;
+  --error: #f44747;
+}
+
+body.dark-theme {
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  font-family: 'Inter', 'Noto Sans JP', sans-serif;
+  /* 視認性の高いサンセリフ体 */
+  line-height: 1.6;
+  /* 読みやすい行間に調整 */
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.app-header {
+  background-color: var(--panel-bg);
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.app-header h1 {
+  font-size: 1.2rem;
+  margin: 0;
+  color: var(--text-dim);
+}
+
+.app-container {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 280px;
+  background-color: var(--panel-bg);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+}
+
+.day-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.day-list li {
+  border-bottom: 1px solid var(--border);
+}
+
+.day-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  color: var(--text-main);
+  text-decoration: none;
+  transition: background 0.2s;
+  font-size: 0.95em;
+}
+
+.day-link:hover {
+  background-color: #2a2d2e;
+}
+
+.day-link.active {
+  background-color: #37373d;
+  border-left: 3px solid var(--accent);
+}
+
+.main-content {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto;
+}
+
+.code-editor {
+  width: 100%;
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 15px;
+  font-family: 'HackGen', 'UDEV Gothic', 'PlemolJP', 'Moralerspace', 'Bizin Gothic', 'BIZ UDGothic', 'Fira Code', 'Consolas', monospace;
+  /* 記事推奨のプログラミング特化フォントを優先 */
+  font-size: 15px;
+  line-height: 1.5;
+  resize: vertical;
+  outline: none;
+}
+
+.code-editor:focus {
+  border-color: var(--accent);
+}
+
+.btn {
+  background-color: var(--accent);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: 3px;
+  font-family: inherit;
+  margin-right: 10px;
+}
+
+.btn:hover {
+  background-color: var(--accent-hover);
+}
+
+.btn-answer {
+  background-color: #4CAF50;
+}
+
+.btn-execute {
+  background-color: #d2691e;
+}
+
+.btn-execute:hover {
+  background-color: #e67e22;
+}
+
+.action-bar {
+  margin-top: 15px;
+  display: flex;
+  align-items: center;
+}
+
+.toast-message {
+  margin-left: 15px;
+  color: var(--success);
+  font-size: 0.9em;
+}
+
+/* HTMX Transition Classes */
+.htmx-indicator {
+  display: none;
+}
+
+.htmx-request .htmx-indicator {
+  display: inline;
+}
+
+.htmx-request.htmx-indicator {
+  display: inline;
+}
+
+/* 解答・解説エリアのスタイル */
+.answer-area {
+  margin-top: 20px;
+}
+
+.answer-box {
+  background-color: #2d2d2d;
+  border-left: 4px solid #4CAF50;
+  padding: 15px 20px;
+  border-radius: 4px;
+  margin-top: 15px;
+}
+
+.answer-box h4 {
+  margin-top: 0;
+  color: #4CAF50;
+  font-size: 1.1em;
+}
+
+.language-sol {
+  display: block;
+  background-color: #1e1e1e;
+  padding: 10px;
+  border-radius: 4px;
+  color: #ce9178;
+  /* 文字列風の色 */
+  overflow-x: auto;
+  font-family: 'HackGen', 'UDEV Gothic', 'PlemolJP', 'Moralerspace', 'Bizin Gothic', 'BIZ UDGothic', 'Fira Code', 'Consolas', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.explanation-text {
+  margin-top: 15px;
+  line-height: 1.6;
+  color: #cccccc;
+}
+
+.badge {
+  font-size: 0.8em;
+  padding: 2px 6px;
+  border-radius: 10px;
+}
+
+.badge.in-progress {
+  color: #dda0dd;
+  border: 1px solid #dda0dd;
+}
+
+.badge.completed {
+  color: #6A9955;
+  border: 1px solid #6A9955;
+}
+
+.drill-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.schema-box {
+  background-color: #252526;
+  padding: 10px 15px;
+  border-radius: 4px;
+  border: 1px dashed var(--border);
+}
+
+.schema-box ul {
+  padding-left: 20px;
+  margin-bottom: 0;
+}
+
+/* SQL Playground Styles */
+.playground-pane {
+  background-color: #252526;
+  padding: 15px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+.sql-query-input {
+  font-family: 'HackGen', 'UDEV Gothic', 'Fira Code', 'Consolas', monospace;
+  font-size: 14px;
+  background-color: #1e1e1e;
+  border: 1px solid var(--border);
+}
+
+.sql-result-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9em;
+  margin-top: 10px;
+}
+
+.sql-result-table th,
+.sql-result-table td {
+  border: 1px solid var(--border);
+  padding: 6px 12px;
+  text-align: left;
+}
+
+.sql-result-table th {
+  background-color: #333333;
+  color: var(--text-dim);
+}
+
+.sql-result-table tr:nth-child(even) {
+  background-color: #2a2d2e;
+}

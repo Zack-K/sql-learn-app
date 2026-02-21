@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOL Training App</title>
+    <!-- アクセシビリティ・視認性の高いフォント（Google Fonts） -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=BIZ+UDGothic&family=Inter:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;700&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
+    <!-- HTMXの読み込み -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <!-- CSSの読み込み -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body class="dark-theme">
+    <header class="app-header">
+        <h1>SOL Training App (17 Days Data Engineering Drill)</h1>
+        <div class="progress-bar">
+            Overall Progress: <span id="progress-percent">{{ progress_percent }}</span>%
+        </div>
+    </header>
+
+    <div class="app-container">
+        <!-- 画面左側：サイドバー（ナビゲーション） -->
+        <aside class="sidebar">
+            <nav>
+                <ul class="day-list" id="day-list-nav">
+                    {% for day in range(1, 18) %}
+                    <li>
+                        <a href="#" class="day-link {% if active_day == day %}active{% endif %}" hx-get="/day/{{ day }}"
+                            hx-target="#main-content" hx-push-url="true">
+                            Day {{ day }}
+                            {% if status_map and status_map[day] == 'completed' %}
+                            <span class="badge completed">✓</span>
+                            {% elif status_map and status_map[day] == 'in_progress' %}
+                            <span class="badge in-progress">▶</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- 画面右側：メインコンテンツ（HTMXで部分更新される領域） -->
+        <main class="main-content" id="main-content">
+            {% include 'editor.html' %}
+        </main>
+    </div>
+</body>
+
+</html>

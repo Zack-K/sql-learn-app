@@ -1,0 +1,30 @@
+{% if error %}
+<div class="toast-message" style="color: var(--error); margin: 0;">
+    Error: {{ error }}
+</div>
+{% else %}
+<div class="sql-result-container" style="overflow-x: auto; margin-top: 10px;">
+    {% if rows %}
+    <table class="sql-result-table">
+        <thead>
+            <tr>
+                {% for col in columns %}
+                <th>{{ col }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in rows %}
+            <tr>
+                {% for item in row %}
+                <td>{{ item }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div style="color: #888; padding: 10px;">(No results)</div>
+    {% endif %}
+</div>
+{% endif %}
