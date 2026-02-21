@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app import models, database
 import logging
 import sqlite3
+import markdown
 from typing import Optional
 
 # ログ設定
@@ -19,6 +20,14 @@ app = FastAPI(title="SOL Training App")
 # 静的ファイルとテンプレートの設定
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
+
+# Markdownカスタムフィルターの追加
+def markdown_filter(text):
+    if not text:
+        return ""
+    return markdown.markdown(text, extensions=['fenced_code', 'tables', 'nl2br'])
+
+templates.env.filters["markdown"] = markdown_filter
 
 @app.on_event("startup")
 def startup_event():

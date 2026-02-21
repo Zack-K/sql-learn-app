@@ -1,0 +1,86 @@
+<div id="sol-reference-panel" class="sol-reference-panel">
+    <div class="panel-header">
+        <h3>📖 SOL 疑似言語リファレンス</h3>
+        <button onclick="toggleSolReference()" class="close-btn">&times;</button>
+    </div>
+    <div class="panel-body">
+        <section>
+            <h4>💡 SOLとは？</h4>
+            <p><strong>Sort Of Like SQL</strong> (SQLっぽい何か)
+                の略。データ処理の「手順（アルゴリズム）」を記述するための手続き型疑似言語です。SQLが「結果」を定義するのに対し、SOLは「過程」を定義します。</p>
+        </section>
+
+        <section>
+            <h4>🛠 基本構文</h4>
+            <pre><code>// 変数と代入
+data = read_csv("file.csv")
+
+// 関数定義
+function process_data(input) {
+    result = []
+    return result
+}
+
+// 繰り返し処理
+for row in records:
+    print(row.name)
+
+// 条件分岐
+if row.amount > 0:
+    save(row)
+else:
+    skip()
+
+// エラー処理
+try:
+    load()
+catch(err):
+    log(err)</code></pre>
+        </section>
+
+        <section>
+            <h4>📋 実務別サンプル</h4>
+            <h5>データフィルタリング</h5>
+            <pre><code>valid_rows = []
+for r in rows:
+    if r.status == 'ok':
+        valid_rows.push(r)</code></pre>
+
+            <h5>データの加工（マッピング）</h5>
+            <pre><code>new_list = []
+for r in rows:
+    new_r = { "id": r.id, "val": r.price * 1.1 }
+    new_list.push(new_r)</code></pre>
+
+            <h5>ハッシュ集計（GROUP BY）</h5>
+            <pre><code>map = {}
+for r in rows:
+    key = r.category
+    if not map.has(key):
+        map[key] = 0
+    map[key] += r.amount</code></pre>
+        </section>
+
+        <section>
+            <h4>🔍 検索用キーワード</h4>
+            <p>SOLは一般的な手続き型言語に似ています。詳細な概念を調べたい時は以下の言葉で検索してみてください：</p>
+            <ul>
+                <li>「Python CSV 読み込み ループ」</li>
+                <li>「JavaScript 配列 フィルタ 集計」</li>
+                <li>「ETL 冪等性 アルゴリズム」</li>
+                <li>「DAG (有向非巡回グラフ) 依存関係」</li>
+            </ul>
+        </section>
+    </div>
+</div>
+
+<button id="sol-ref-toggle" onclick="toggleSolReference()" class="sol-ref-toggle-btn">
+    <span>📖 SOL Guide</span>
+</button>
+
+<script>
+    function toggleSolReference() {
+        const panel = document.getElementById('sol-reference-panel');
+        panel.classList.toggle('open');
+    }
+</script>

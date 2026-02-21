@@ -15,7 +15,7 @@
     <div class="question-pane">
         <h3>📄 課題</h3>
         <div class="question-text">
-            {{ drill_data.question | safe }}
+            {{ drill_data.question | markdown | safe }}
         </div>
 
         {% if drill_data.schema %}
